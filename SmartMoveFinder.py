@@ -1,8 +1,12 @@
 import random
 
-# dictionary which assigns 'level of power' to each piece
+# This is a dictionary that assigns a value to each piece. The values are used to calculate the
+# material score of the board.
 pieceScore = {"K": 0, "Q": 10, "R": 5, "B": 3, "N": 3, "p": 1}
 
+
+# `knightScores` is a matrix that assigns a score to each square on the board. The score is based on
+# the position of the knight on the board.
 knightScores = [[1, 1, 1, 1, 1, 1, 1, 1],
                 [1, 2, 2, 2, 2, 2, 2, 1],
                 [1, 2, 3, 3, 3, 3, 2, 1],
@@ -12,6 +16,9 @@ knightScores = [[1, 1, 1, 1, 1, 1, 1, 1],
                 [1, 2, 2, 2, 2, 2, 2, 1],
                 [1, 1, 1, 1, 1, 1, 1, 1]]
 
+
+# A matrix that assigns a score to each square on the board. The score is based on the position of the
+# bishop on the board.
 bishopScores = [[4, 3, 2, 1, 1, 2, 3, 4],
                 [3, 4, 3, 2, 2, 3, 4, 3],
                 [2, 3, 4, 3, 3, 4, 3, 2],
@@ -21,6 +28,10 @@ bishopScores = [[4, 3, 2, 1, 1, 2, 3, 4],
                 [3, 4, 3, 2, 2, 3, 4, 3],
                 [4, 3, 2, 1, 1, 2, 3, 4]]
 
+
+
+# The queenScores matrix is a matrix that assigns a score to each square on the board. The score is
+# based on the position of the queen on the board.
 queenScores = [[1, 1, 1, 3, 1, 1, 1, 1],
                [1, 2, 3, 3, 3, 1, 1, 1],
                [1, 4, 3, 3, 3, 4, 2, 1],
@@ -30,6 +41,8 @@ queenScores = [[1, 1, 1, 3, 1, 1, 1, 1],
                [1, 1, 2, 3, 3, 1, 1, 1],
                [1, 1, 1, 3, 1, 1, 1, 1]]
 
+# `rookScores` is a matrix that assigns a score to each square on the board. The score is based on the
+# position of the rook on the board.
 rookScores = [[4, 3, 4, 4, 4, 4, 3, 3],
               [4, 4, 4, 4, 4, 4, 4, 4],
               [1, 1, 2, 3, 3, 2, 1, 1],
@@ -39,6 +52,8 @@ rookScores = [[4, 3, 4, 4, 4, 4, 3, 3],
               [4, 4, 4, 4, 4, 4, 4, 4],
               [4, 3, 4, 4, 4, 4, 3, 4]]
 
+# A matrix that assigns a score to each square on the board. The score is based on the position of the
+# pawn on the board.
 whitePawnScores = [[8, 8, 8, 8, 8, 8, 8, 8],
                    [8, 8, 8, 8, 8, 8, 8, 8],
                    [5, 6, 6, 7, 7, 6, 6, 5],
@@ -48,6 +63,8 @@ whitePawnScores = [[8, 8, 8, 8, 8, 8, 8, 8],
                    [1, 1, 1, 0, 0, 1, 1, 1],
                    [0, 0, 0, 0, 0, 0, 0, 0]]
 
+# This is the board score for black pawns. The score is based on the position of the pawn on the
+# board.
 blackPawnScores = [[0, 0, 0, 0, 0, 0, 0, 0],
                    [1, 1, 1, 0, 0, 1, 1, 1],
                    [1, 1, 2, 3, 3, 2, 1, 1],
@@ -59,41 +76,47 @@ blackPawnScores = [[0, 0, 0, 0, 0, 0, 0, 0],
 
 
 
+# This is a dictionary that contains the values for each piece. The values are used to calculate the
+# material score of the board.
 piecePositionScores = {"N": knightScores, "Q":queenScores, "B": bishopScores, "R": rookScores, "bp": blackPawnScores, "wp": whitePawnScores}
 
 
 
 
 
-# assigning 1000 'points' to a CHECKMATE constant
+
+# This is a constant that is used to determine whether a game is won, lost, or drawn.
 CHECKMATE = 1000
-# stalemate is better than a losing position
 STALEMATE = 0
-# how far deep into the tree the recursion is to go
 DEPTH = 3
 
 
-# when board is scored --> positive value = white winning, negative value = black winning
-# i.e. white checkmate = 1000, black checkmate = -1000
-# known as a zero-sum game
+
 
 def findRandomMove(validMoves):
-    '''Pick and return a random move'''
-    return random.choice(validMoves)
-    # return validMoves[random.randint(0, len(validMoves)- 1)]
+    """
+    Return a random move from the list of valid moves
+    
+    :param validMoves: a list of valid moves
+    :return: a random move.
+    """
 
-# minmax without recursion
+    return random.choice(validMoves)
+
+
 def findBestMoveMinMaxNoRecursion(gs, validMoves):
-    '''Finds best move based on material(board space) alone --> Greedy Algorithm'''
-    # from black's perspective, CHECKMATE is worst possible score
-    # starting greedy algorithm from the worst possible situation so there is a goal/target to reach and a comparable value
-    # white's perspective --> maxScore = -CHECKMATE; if score > maxScore
-    # allows both sides to maximise score instead of aiming for higher/lower scores respectively
+    """
+    Finds the best move based on material(board space) alone --> Greedy Algorithm
+
+    :param gs: the game state
+    :param validMoves: A list of valid moves for the current player
+    :return: The best move for the player to make.
+    """
+
     turnMultiplier = 1 if gs.whiteMove else -1
-    # trying to minimise the opponent's best move
     opponentMinMaxScore = CHECKMATE
     bestPlayerMove = None
-    random.shuffle(validMoves) # adds variety of moves; picks first of multiple moves with same possible value
+    random.shuffle(validMoves)
     for playerMove in validMoves:
         gs.makeMove(playerMove)
         opponentsMoves = gs.getValidMoves()
@@ -118,48 +141,54 @@ def findBestMoveMinMaxNoRecursion(gs, validMoves):
         if opponentMaxScore < opponentMinMaxScore:
             opponentMinMaxScore = opponentMaxScore
             bestPlayerMove = playerMove
-        gs.undoMove()  # stops the greedy algorithm from duplicating pieces to get a higher score
+        gs.undoMove()
     return bestPlayerMove
 
-
 def findBestMove(gs, validMoves, returnQueue):
-    '''Helper method to call the intial recursive call to nextMove in findMoveMinMax and return it'''
+    """
+    This function takes in a game state, a list of valid moves, and a queue. 
+    It then finds the best move in the list of valid moves and puts it in the queue.
+    
+    :param gs: the game state
+    :param validMoves: a list of valid moves
+    :param returnQueue: a multiprocessing.Queue object that the function will put its answer into
+    """
     global nextMove, counter
     nextMove = None
     random.shuffle(validMoves)
-    #findMoveMinMax(gs, validMoves, DEPTH, gs.whiteToMove)
-    # alpha = current min = -CHECKMATE
-    # beta = current max = CHECKMATE
     counter = 0
-    #findMoveNegaMax(gs, validMoves, DEPTH, 1 if gs.whiteToMove else -1)
     findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1)
-    #print(counter) # how many times the function is called --> TESTING PURPOSES 
     returnQueue.put(nextMove)
 
 
-# depth is how far down the game tree the recursion algorithm will go
-# to change how many moves the AI looks ahead, change the DEPTH constant i.e. how 'smart' the AI is
 def findMoveMinMax(gs, validMoves, depth, whiteToMove):
-    global nextMove
-    if depth == 0: # terminal node in game tree
-        return scoreMaterial(gs.board)
+    """
+    This function takes in a game state, a list of valid moves, a depth, and a boolean indicating
+    whether or not it's white's turn. 
+    It returns the move with the highest or lowest value, depending on whether it's white's turn or
+    black's turn.
     
+    :param gs: the game state
+    :param validMoves: A list of valid moves
+    :param depth: The depth of the search tree
+    :param whiteToMove: boolean that is True if it's white to move, and False if it's black to move
+    """
+    global nextMove
+    if depth == 0:
+        return scoreMaterial(gs.board)
     if whiteToMove:
-        # if whiteToMove is true, the score is to be maximised
         maxScore = -CHECKMATE
         for move in validMoves:
             gs.makeMove(move)
             nextMoves = gs.getValidMoves()
-            score = findMoveMinMax(gs, nextMoves, depth-1, False)# recursively calling function
+            score = findMoveMinMax(gs, nextMoves, depth-1, False)
             if score > maxScore:
                 maxScore = score
                 if depth == DEPTH:
                     nextMove = move
             gs.undoMove()
         return maxScore
-
     else:
-        # black's go --> the score is to be minimised
         minScore = CHECKMATE
         for move in validMoves:
             gs.makeMove(move)
@@ -172,15 +201,21 @@ def findMoveMinMax(gs, validMoves, depth, whiteToMove):
             gs.undoMove()
         return minScore 
 
-
 def findMoveNegaMax(gs, validMoves, depth, turnMultiplier):
-    # nega max --> alwyas looking for a maximum
-    # multiply it by -1 on black's turn
+    """
+    This function is the heart of the MiniMax algorithm. It takes a game state, a list of valid moves, a
+    depth, and a multiplier. 
+    It returns a tuple of the best move and the value of that move.
+    
+    :param gs: the gamestate object
+    :param validMoves: a list of valid moves
+    :param depth: The depth of the search tree
+    :param turnMultiplier: 1 for black, -1 for white
+    """
     global nextMove, counter
     counter += 1
     if depth == 0:
         return turnMultiplier * scoreBoard(gs)
-    
     maxScore = -CHECKMATE
     for move in validMoves:
         gs.makeMove(move)
@@ -194,86 +229,91 @@ def findMoveNegaMax(gs, validMoves, depth, turnMultiplier):
     return maxScore
 
 def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultiplier):
-    # alpha = upper bound, beta = lower bound/ minimum/maximum possible score
-    # nega max --> alwyas looking for a maximum
-    # multiply it by -1 on black's turn
+    """
+    This function is the heart of the MiniMax algorithm. It takes a game state, a depth, and a turn
+    multiplier. It then recursively calls itself to find the maximum score of all the possible moves at
+    this point in the game. It does this by first checking to see if the game is over, or if the depth
+    has been reached. If so, it returns the turn multiplier times the score of the board. Otherwise, it
+    loops through all the possible moves and calls itself on each move. It does this by first making the
+    move, then recursively calling itself on the next set of moves. It then undoes the move, and checks
+    to see if the score is greater than the current maximum score. If so, it sets the maximum score to
+    the score of the board, and if the depth is DEPTH (the original call), it sets the nextMove to the
+    move that resulted in the maximum score.
+    
+    :param gs: the game state
+    :param validMoves: The list of valid moves for the current player
+    :param depth: How deep to search for moves
+    :param alpha: The best score we know we can achieve from this position
+    :param beta: The value of the best alternative for MAX along the path to state
+    :param turnMultiplier: 1 if white's turn, -1 if black's turn
+    :return: The score of the best move.
+    """
     global nextMove, counter
     counter += 1
     if depth == 0:
         return turnMultiplier * scoreBoard(gs)
-    
-    # move ordering --> for alpha beta pruning efficiency
-    # evaluate best moves first
-    # not look at branches with 'worse' moves
-    # ^ implement later
     maxScore = -CHECKMATE
     for move in validMoves:
         gs.makeMove(move)
         nextMoves = gs.getValidMoves()
-        score = -findMoveNegaMaxAlphaBeta(gs, nextMoves, depth-1,-beta, -alpha, -turnMultiplier)# everything is reversed for opponent
+        score = -findMoveNegaMaxAlphaBeta(gs, nextMoves, depth-1,-beta, -alpha, -turnMultiplier)
         if score > maxScore:
             maxScore = score
             if depth == DEPTH:
                 nextMove = move
-                #print(move, score)# debugging/testing
         gs.undoMove()
-        if maxScore > alpha:# pruning happens
+        if maxScore > alpha:
             alpha = maxScore
-        
         if alpha >= beta:
-            break# won't need to evaluate rest of tree
-
+            break
     return maxScore
 
 
-# a positive score is good for white, a negative score is good for black
 def scoreBoard(gs):
-    # Look for checkmate before scoring board --> efficiency
+    """
+    This function takes in a GameState object and returns a score for the state
+    
+    :param gs: the game state
+    :return: The score of the board.
+    """
     if gs.checkmate:
         if gs.whiteToMove:
-            return -CHECKMATE # black wins
+            return -CHECKMATE
         else:
-            return CHECKMATE # white wins
+            return CHECKMATE
     elif gs.stalemate:
-        return STALEMATE # neither side wins
-
+        return STALEMATE
     score = 0
     for row in range(len(gs.board)):
         for col in range(len(gs.board[row])):
             square = gs.board[row][col]
             if square != "--":
-                # score positionally
                 piecePositionScore = 0
-                if square[1] != "K":# no position table for king
-                    if square[1] == "p":# for pawns
+                if square[1] != "K":
+                    if square[1] == "p":
                         piecePositionScore = piecePositionScores[square][row][col]
-                    else:# for other pieces
+                    else:
                         piecePositionScore = piecePositionScores[square[1]][row][col]
-                
-
-
-
                 if square[0] == 'w':
-                    # increasing score positively if piece is white
-                    # type of piece e.g. pawn, rook etc = square[1]
                     score += pieceScore[square[1]] + piecePositionScore * .1
                 elif square[0] == 'b':
-                    # increasing score negatively (decreasing) if piece is black
                     score -= pieceScore[square[1]] + piecePositionScore * .1
     return score
 
-
-
 def scoreMaterial(board):
-    '''Score the board based on material'''
+    """
+    Given a board, return the material score of the board
+    
+    :param board: the board state to evaluate
+    :return: The score of the board.
+    """
     score = 0
     for row in board:
         for square in row:
             if square[0] == 'w':
-                # increasing score positively if piece is white
-                # type of piece e.g. pawn, rook etc = square[1]
+
                 score += pieceScore[square[1]]
             elif square[0] == 'b':
-                # increasing score negatively (decreasing) if piece is black
+
                 score -= pieceScore[square[1]]
     return score
